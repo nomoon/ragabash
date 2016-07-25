@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.5"
   spec.add_development_dependency "codeclimate-test-reporter", "~> 0.6"
   spec.add_development_dependency "rubocop", "~> 0.41"
+  spec.add_development_dependency "rubocop-rspec", "~> 1.5.1"
   spec.add_development_dependency "yard", "~> 0.9"
 
   spec.add_runtime_dependency "ice_nine", "~> 0.11"
