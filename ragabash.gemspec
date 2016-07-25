@@ -32,5 +32,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "ice_nine", "~> 0.11"
   spec.add_runtime_dependency "awesome_print", "~> 1.7"
   spec.add_runtime_dependency "rouge", "~> 2.0"
-  spec.add_runtime_dependency "pry", "~> 0.10"
+  spec.add_runtime_dependency "pry", ">= 0.10.4", "< 0.12"
 end
