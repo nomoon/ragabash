@@ -6,14 +6,16 @@ describe Ragabash::Refinements do
 
   context "#deep_freeze" do
     it "freezes nested objects" do
-      hash = { first: { second: String.new("Unfrozen string") } }
+      unfrozen_string = String.new("Unfrozen string")
+      hash = { first: { second: unfrozen_string } }
       expect(hash.deep_freeze[:first][:second]).to be_frozen
     end
   end
 
   context "#deep_freeze!" do
     it "freezes nested objects, skipping already-frozen ones" do
-      hash = { first: { second: String.new("Unfrozen string") }.freeze }
+      unfrozen_string = String.new("Unfrozen string")
+      hash = { first: { second: unfrozen_string }.freeze }
       expect(hash.deep_freeze![:first][:second]).not_to be_frozen
     end
   end
@@ -71,11 +73,13 @@ describe Ragabash::Refinements do
         .and eq(BigDecimal.new("1.5")).and be_frozen
     end
     it("Frozen string returns self") do
-      expect("A string".safe_copy).to equal("A string").and be_frozen
+      frozen_string = String.new("A string").freeze
+      expect(frozen_string.safe_copy).to equal(frozen_string).and be_frozen
     end
     it("String duplicates and freeze") do
-      expect(String.new("A string").safe_copy).to not_equal("A string")
-        .and eq("A string").and be_frozen
+      unfrozen_string = String.new("A string")
+      expect(unfrozen_string.safe_copy).to not_equal(unfrozen_string)
+        .and eq(unfrozen_string).and be_frozen
     end
     it("Array duplicates and freezes") do
       expect([1, 2, 3].safe_copy).to not_equal([1, 2, 3]).and eq([1, 2, 3])
