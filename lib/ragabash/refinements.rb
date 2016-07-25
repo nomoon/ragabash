@@ -113,10 +113,8 @@ module Ragabash
     # Necessary to re-override Numeric
     require "bigdecimal"
     refine ::BigDecimal do
-      def try_dup
-        dup
-      end
-      alias deep_dup try_dup
+      alias try_dup dup
+      alias deep_dup dup
 
       def safe_copy
         frozen? ? self : dup.freeze
