@@ -2,12 +2,26 @@
 require "rouge"
 
 module Ragabash
+  # Custom String formatter module for +awesome_print+ gem.
+  #
+  # You can activate this automatically by including:
+  #  require "ragabash/ext/awesome_strings"
+  # You can also activate this as part of an awesome_print-based Pry printer by including:
+  #  require "ragabash/ext/pry_awesome_print"
   module AwesomeStringFormatter
-    def self.included(base)
-      base.send :alias_method, :cast_without_string, :cast
-      base.send :alias_method, :cast, :cast_with_string
+    class << self
+      # Intercept awesome_print type-cast method.
+      def included(base)
+        base.send :alias_method, :cast_without_string, :cast
+        base.send :alias_method, :cast, :cast_with_string
+      end
     end
 
+    # Replacement type-cast method for awesome_print.
+    #
+    # @param object [Object] the object to test
+    # @param type [Any] the type to test against
+    # @return [Boolean]
     def cast_with_string(object, type)
       object.is_a?(::String) ? :string : cast_without_string(object, type)
     end
@@ -22,6 +36,10 @@ module Ragabash
     R_LEXERS = ::Rouge::Lexer.all
     private_constant :MULTILINE_UNESCAPES, :R_FORMATTER, :R_LEXERS
 
+    # Format a String for awesome_print display.
+    #
+    # @param string [String] the String to format
+    # @return [String] the formatted String
     def awesome_string(string)
       lexers = ::Rouge::Guessers::Source.new(string).filter(R_LEXERS)
       if !lexers.empty?

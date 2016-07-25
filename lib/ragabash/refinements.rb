@@ -2,8 +2,47 @@
 require "ice_nine"
 
 module Ragabash
+  # A set of useful refinements for base classes.
+  #
+  # Activate these by including the following in an appropriate lexical scope:
+  #   using ::Ragabash::Refinements
   module Refinements
     # rubocop:disable Style/Alias
+
+    # @!method deep_freeze
+    #   Deep-freezes +self+.
+    #
+    #   Refines: +::Object+
+    #   @see http://www.rubydoc.info/gems/ice_nine/IceNine#deep_freeze-class_method
+
+    # @!method deep_freeze!
+    #   Deep-freezes +self+, but skips already-frozen objects.
+    #
+    #   Refines: +::Object+
+    #   @see http://www.rubydoc.info/gems/ice_nine/IceNine#deep_freeze%21-class_method
+
+    # @!method try_dup
+    #   Attempts to duplicate +self+, or returns +self+ on non-duplicable objects.
+    #
+    #   Refines: +::Object+, +::NilClass+, +::FalseClass+, +::TrueClass+, +::Symbol+,
+    #   +::Numeric+, +::BigDecimal+
+
+    # @!method deep_dup
+    #   Recursively duplicates +self+, including non-duplicable objects where necessary.
+    #
+    #   Refines: +::Object+, +::NilClass+, +::FalseClass+, +::TrueClass+, +::Symbol+,
+    #   +::Numeric+, +::BigDecimal+, +::Array+, +::Hash+, +::Set+
+
+    # @!method safe_copy
+    #   Returns +self+ if frozen or otherwise a frozen deep-duplicate.
+    #
+    #   Refines: +::Object+, +::NilClass+, +::FalseClass+, +::TrueClass+, +::Symbol+,
+    #   +::Numeric+, +::BigDecimal+, +::Array+, +::Hash+, +::Set+
+
+    # @!method frozen_copy
+    #   Alias of {safe_copy}.
+
+    #
     refine ::Object do
       def deep_freeze
         IceNine.deep_freeze(self)
