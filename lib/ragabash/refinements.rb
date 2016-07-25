@@ -19,7 +19,11 @@ module Ragabash
         self
       end
       alias deep_dup try_dup
-      alias safe_copy try_dup
+
+      def safe_copy
+        IceNine.deep_freeze(try_dup)
+      end
+      alias frozen_copy safe_copy
     end
 
     refine ::NilClass do
@@ -28,6 +32,7 @@ module Ragabash
       end
       alias deep_dup try_dup
       alias safe_copy try_dup
+      alias frozen_copy try_dup
     end
 
     refine ::FalseClass do
@@ -36,6 +41,7 @@ module Ragabash
       end
       alias deep_dup try_dup
       alias safe_copy try_dup
+      alias frozen_copy try_dup
     end
 
     refine ::TrueClass do
@@ -44,6 +50,7 @@ module Ragabash
       end
       alias deep_dup try_dup
       alias safe_copy try_dup
+      alias frozen_copy try_dup
     end
 
     refine ::Symbol do
@@ -52,6 +59,7 @@ module Ragabash
       end
       alias deep_dup try_dup
       alias safe_copy try_dup
+      alias frozen_copy try_dup
     end
 
     refine ::Numeric do
@@ -60,6 +68,7 @@ module Ragabash
       end
       alias deep_dup try_dup
       alias safe_copy try_dup
+      alias frozen_copy try_dup
     end
 
     # Necessary to re-override Numeric
@@ -71,20 +80,27 @@ module Ragabash
       alias deep_dup try_dup
 
       def safe_copy
-        frozen? ? self : dup
+        frozen? ? self : dup.freeze
       end
+      alias frozen_copy safe_copy
     end
 
     refine ::String do
       def safe_copy
-        frozen? ? self : dup
+        frozen? ? self : dup.freeze
       end
+      alias frozen_copy safe_copy
     end
 
     refine ::Array do
       def deep_dup
         map { |value| value.deep_dup } # rubocop:disable Style/SymbolProc
       end
+
+      def safe_copy
+        frozen? ? self : deep_dup.deep_freeze
+      end
+      alias frozen_copy safe_copy
     end
 
     refine ::Hash do
@@ -100,6 +116,11 @@ module Ragabash
         end
         hash
       end
+
+      def safe_copy
+        frozen? ? self : deep_dup.deep_freeze
+      end
+      alias frozen_copy safe_copy
     end
 
     refine ::Set do
@@ -111,6 +132,11 @@ module Ragabash
         end
         self.class[set_a]
       end
+
+      def safe_copy
+        frozen? ? self : deep_dup.deep_freeze
+      end
+      alias frozen_copy safe_copy
     end
   end
 end
