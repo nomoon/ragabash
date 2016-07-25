@@ -169,7 +169,7 @@ module Ragabash
           next val if ::String === val # rubocop:disable Style/CaseEquality
           val.deep_dup
         end
-        self.class[set_a]
+        self.class.new(set_a)
       end
 
       def safe_copy
