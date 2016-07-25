@@ -3,6 +3,6 @@ require "ragabash/version"
 require "ragabash/refinements"
 require "ragabash/awesome_string_formatter"
 
+# A utility module full of useful things.
 module Ragabash
-  # Your code goes here...
 end

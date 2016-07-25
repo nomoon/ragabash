@@ -2,8 +2,47 @@
 require "ice_nine"
 
 module Ragabash
+  # A set of useful refinements for base classes.
+  #
+  # Activate these by including the following in an appropriate lexical scope:
+  #   using ::Ragabash::Refinements
   module Refinements
     # rubocop:disable Style/Alias
+
+    # @!method deep_freeze
+    #   Deep-freezes +self+.
+    #
+    #   Refines: +::Object+
+    #   @see http://www.rubydoc.info/gems/ice_nine/IceNine#deep_freeze-class_method
+
+    # @!method deep_freeze!
+    #   Deep-freezes +self+, but skips already-frozen objects.
+    #
+    #   Refines: +::Object+
+    #   @see http://www.rubydoc.info/gems/ice_nine/IceNine#deep_freeze%21-class_method
+
+    # @!method try_dup
+    #   Attempts to duplicate +self+, or returns +self+ on non-duplicable objects.
+    #
+    #   Refines: +::Object+, +::NilClass+, +::FalseClass+, +::TrueClass+, +::Symbol+,
+    #   +::Numeric+, +::BigDecimal+
+
+    # @!method deep_dup
+    #   Recursively duplicates +self+, including non-duplicable objects where necessary.
+    #
+    #   Refines: +::Object+, +::NilClass+, +::FalseClass+, +::TrueClass+, +::Symbol+,
+    #   +::Numeric+, +::BigDecimal+, +::Array+, +::Hash+, +::Set+
+
+    # @!method safe_copy
+    #   Returns +self+ if frozen or otherwise a frozen deep-duplicate.
+    #
+    #   Refines: +::Object+, +::NilClass+, +::FalseClass+, +::TrueClass+, +::Symbol+,
+    #   +::Numeric+, +::BigDecimal+, +::Array+, +::Hash+, +::Set+
+
+    # @!method frozen_copy
+    #   Alias of {safe_copy}.
+
+    #
     refine ::Object do
       def deep_freeze
         IceNine.deep_freeze(self)
@@ -19,7 +58,11 @@ module Ragabash
         self
       end
       alias deep_dup try_dup
-      alias safe_copy try_dup
+
+      def safe_copy
+        IceNine.deep_freeze(try_dup)
+      end
+      alias frozen_copy safe_copy
     end
 
     refine ::NilClass do
@@ -28,6 +71,7 @@ module Ragabash
       end
       alias deep_dup try_dup
       alias safe_copy try_dup
+      alias frozen_copy try_dup
     end
 
     refine ::FalseClass do
@@ -36,6 +80,7 @@ module Ragabash
       end
       alias deep_dup try_dup
       alias safe_copy try_dup
+      alias frozen_copy try_dup
     end
 
     refine ::TrueClass do
@@ -44,6 +89,7 @@ module Ragabash
       end
       alias deep_dup try_dup
       alias safe_copy try_dup
+      alias frozen_copy try_dup
     end
 
     refine ::Symbol do
@@ -52,6 +98,7 @@ module Ragabash
       end
       alias deep_dup try_dup
       alias safe_copy try_dup
+      alias frozen_copy try_dup
     end
 
     refine ::Numeric do
@@ -60,6 +107,7 @@ module Ragabash
       end
       alias deep_dup try_dup
       alias safe_copy try_dup
+      alias frozen_copy try_dup
     end
 
     # Necessary to re-override Numeric
@@ -71,20 +119,27 @@ module Ragabash
       alias deep_dup try_dup
 
       def safe_copy
-        frozen? ? self : dup
+        frozen? ? self : dup.freeze
       end
+      alias frozen_copy safe_copy
     end
 
     refine ::String do
       def safe_copy
-        frozen? ? self : dup
+        frozen? ? self : dup.freeze
       end
+      alias frozen_copy safe_copy
     end
 
     refine ::Array do
       def deep_dup
         map { |value| value.deep_dup } # rubocop:disable Style/SymbolProc
       end
+
+      def safe_copy
+        frozen? ? self : deep_dup.deep_freeze
+      end
+      alias frozen_copy safe_copy
     end
 
     refine ::Hash do
@@ -100,6 +155,11 @@ module Ragabash
         end
         hash
       end
+
+      def safe_copy
+        frozen? ? self : deep_dup.deep_freeze
+      end
+      alias frozen_copy safe_copy
     end
 
     refine ::Set do
@@ -111,6 +171,11 @@ module Ragabash
         end
         self.class[set_a]
       end
+
+      def safe_copy
+        frozen? ? self : deep_dup.deep_freeze
+      end
+      alias frozen_copy safe_copy
     end
   end
 end
