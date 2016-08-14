@@ -160,6 +160,7 @@ module Ragabash
       alias frozen_copy safe_copy
     end
 
+    require "set"
     refine ::Set do
       def deep_dup
         set_a = to_a
