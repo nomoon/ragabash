@@ -179,9 +179,13 @@ module Ragabash
       end
     end
 
-    # Necessary to re-override Numeric
     require "bigdecimal"
     refine ::BigDecimal do
+      def dup
+        dup = self.class.allocate
+        initialize_copy(dup)
+        dup
+      end
       alias try_dup dup
       alias deep_dup dup
 
