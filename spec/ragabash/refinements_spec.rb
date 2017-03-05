@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 require "spec_helper"
 
-describe Ragabash::Refinements do
-  using ::Ragabash::Refinements
+describe Ragabash::Refinements do # rubocop:disable BlockLength
+  ::Ragabash::Refinements.activate! || using(::Ragabash::Refinements)
 
   context "#deep_freeze" do
     it "freezes nested objects" do
@@ -24,7 +24,7 @@ describe Ragabash::Refinements do
     it("NilClass returns self") { expect(nil.try_dup).to equal(nil) }
     it("FalseClass returns self") { expect(false.try_dup).to equal(false) }
     it("TrueClass returns self") { expect(true.try_dup).to equal(true) }
-    it("Fixnum returns self") { expect(1.try_dup).to equal(1) }
+    it("Integer returns self") { expect(1.try_dup).to equal(1) }
     it("Float returns self") { expect(1.15.try_dup).to equal(1.15) }
     it("Symbol returns self") { expect(:symbol.try_dup).to equal(:symbol) }
     it("BigDecimal duplicates") { expect(BigDecimal.new("1.5").try_dup).to not_equal(BigDecimal.new("1.5")) }
@@ -38,7 +38,7 @@ describe Ragabash::Refinements do
     it("NilClass returns self") { expect(nil.deep_dup).to equal(nil) }
     it("FalseClass returns self") { expect(false.deep_dup).to equal(false) }
     it("TrueClass returns self") { expect(true.deep_dup).to equal(true) }
-    it("Fixnum returns self") { expect(1.deep_dup).to equal(1) }
+    it("Integer returns self") { expect(1.deep_dup).to equal(1) }
     it("Float returns self") { expect(1.15.deep_dup).to equal(1.15) }
     it("Symbol returns self") { expect(:symbol.deep_dup).to equal(:symbol) }
     it("BigDecimal duplicates") { expect(BigDecimal.new("1.5").try_dup).to not_equal(BigDecimal.new("1.5")) }
@@ -61,11 +61,11 @@ describe Ragabash::Refinements do
     end
   end
 
-  context "#safe_copy" do
+  context "#safe_copy" do # rubocop:disable BlockLength
     it("NilClass returns self") { expect(nil.safe_copy).to equal(nil) }
     it("FalseClass returns self") { expect(false.safe_copy).to equal(false) }
     it("TrueClass returns self") { expect(true.safe_copy).to equal(true) }
-    it("Fixnum returns self") { expect(1.safe_copy).to equal(1) }
+    it("Integer returns self") { expect(1.safe_copy).to equal(1) }
     it("Float returns self") { expect(1.15.safe_copy).to equal(1.15) }
     it("Symbol returns self") { expect(:symbol.safe_copy).to equal(:symbol) }
     it("BigDecimal duplicates and freeze") do
@@ -98,5 +98,43 @@ describe Ragabash::Refinements do
       object = struct.new
       expect(object.safe_copy).to not_equal(object).and eq(object).and be_frozen
     end
+  end
+
+  context "#blank?" do
+    it("NilClass returns true") { expect(nil.blank?).to equal(true) }
+    it("FalseClass returns true") { expect(false.blank?).to equal(true) }
+    it("TrueClass returns false") { expect(true.blank?).to equal(false) }
+    it("Integer returns false") { expect(1.blank?).to equal(false) }
+    it("Float returns false") { expect(1.15.blank?).to equal(false) }
+    it("Symbol returns false") { expect(:symbol.blank?).to equal(false) }
+    it("BigDecimal returns false") { expect(BigDecimal.new("1.5").blank?).to equal(false) }
+    it("String returns true if empty") { expect("".blank?).to equal(true) }
+    it("String returns true if whitespace") { expect("\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000".blank?).to equal(true) }
+    it("String returns false if not empty") { expect("A string".blank?).to equal(false) }
+    it("Array returns true if empty") { expect([].blank?).to equal(true) }
+    it("Array returns false if not empty") { expect([1].blank?).to equal(false) }
+    it("Hash returns true if empty") { expect({}.blank?).to equal(true) }
+    it("Hash returns false if not empty") { expect({ a: 1 }.blank?).to equal(false) }
+    it("Set returns true if empty") { expect(Set.new.blank?).to equal(true) }
+    it("Set returns false if not empty") { expect(Set.new([1, 2]).blank?).to equal(false) }
+  end
+
+  context "#present?" do
+    it("NilClass returns false") { expect(nil.present?).to equal(false) }
+    it("FalseClass returns false") { expect(false.present?).to equal(false) }
+    it("TrueClass returns true") { expect(true.present?).to equal(true) }
+    it("Integer returns true") { expect(1.present?).to equal(true) }
+    it("Float returns true") { expect(1.15.present?).to equal(true) }
+    it("Symbol returns true") { expect(:symbol.present?).to equal(true) }
+    it("BigDecimal returns true") { expect(BigDecimal.new("1.5").present?).to equal(true) }
+    it("String returns false if empty") { expect("".present?).to equal(false) }
+    it("String returns false if whitespace") { expect("\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000".present?).to equal(false) }
+    it("String returns true if not empty") { expect("A string".present?).to equal(true) }
+    it("Array returns false if empty") { expect([].present?).to equal(false) }
+    it("Array returns true if not empty") { expect([1].present?).to equal(true) }
+    it("Hash returns false if empty") { expect({}.present?).to equal(false) }
+    it("Hash returns true if not empty") { expect({ a: 1 }.present?).to equal(true) }
+    it("Set returns false if empty") { expect(Set.new.present?).to equal(false) }
+    it("Set returns true if not empty") { expect(Set.new([1, 2]).present?).to equal(true) }
   end
 end

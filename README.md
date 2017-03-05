@@ -3,8 +3,6 @@
 [![Gem Version](https://badge.fury.io/rb/ragabash.svg)](https://badge.fury.io/rb/ragabash)
 [![Dependency Status](https://gemnasium.com/badges/github.com/nomoon/ragabash.svg)](https://gemnasium.com/github.com/nomoon/ragabash)
 [![Build Status](https://travis-ci.org/nomoon/ragabash.svg?branch=master)](https://travis-ci.org/nomoon/ragabash)
-[![Test Coverage](https://codeclimate.com/github/nomoon/ragabash/badges/coverage.svg)](https://codeclimate.com/github/nomoon/ragabash/coverage)
-[![Code Climate](https://codeclimate.com/github/nomoon/ragabash/badges/gpa.svg)](https://codeclimate.com/github/nomoon/ragabash)
 [![Inline docs](http://inch-ci.org/github/nomoon/ragabash.svg?branch=master)](http://inch-ci.org/github/nomoon/ragabash)
 
 "A collection of useful extensions, refinements, and tools."
