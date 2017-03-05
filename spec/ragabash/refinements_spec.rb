@@ -112,7 +112,7 @@ describe Ragabash::Refinements do # rubocop:disable BlockLength
     it("Symbol returns false") { expect(:symbol.blank?).to equal(false) }
     it("BigDecimal returns false") { expect(BigDecimal.new("1.5").blank?).to equal(false) }
     it("String returns true if empty") { expect("".blank?).to equal(true) }
-    it("String returns true if unicode whitespace") { expect("\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000".blank?).to equal(true) } unless defined?(JRUBY_VERSION)
+    it("String returns true if unicode whitespace") { expect("\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000".blank?).to equal(true) }
     it("String returns true if regular whitespace") { expect("          ".blank?).to equal(true) }
     it("String returns false if not empty") { expect("A string".blank?).to equal(false) }
     it("Array returns true if empty") { expect([].blank?).to equal(true) }
@@ -133,7 +133,7 @@ describe Ragabash::Refinements do # rubocop:disable BlockLength
     it("Symbol returns true") { expect(:symbol.present?).to equal(true) }
     it("BigDecimal returns true") { expect(BigDecimal.new("1.5").present?).to equal(true) }
     it("String returns false if empty") { expect("".present?).to equal(false) }
-    it("String returns false if unicode whitespace") { expect("\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000".present?).to equal(false) } unless defined?(JRUBY_VERSION)
+    it("String returns false if unicode whitespace") { expect("\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000".present?).to equal(false) }
     it("String returns false if regular whitespace") { expect("          ".present?).to equal(false) }
     it("String returns true if not empty") { expect("A string".present?).to equal(true) }
     it("Array returns false if empty") { expect([].present?).to equal(false) }

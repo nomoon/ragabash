@@ -218,7 +218,12 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      unless defined?(JRUBY_VERSION)
+      if defined?(JRUBY_VERSION)
+        BLANK_RE = /\A[[:space:]]*\z/
+        def blank?
+          empty? || BLANK_RE === self # rubocop:disable Style/CaseEquality
+        end
+      else
         require "fast_blank"
         alias blank? blank_as?
       end
