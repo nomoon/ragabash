@@ -4,11 +4,13 @@ require "ice_nine"
 module Ragabash
   # A set of useful refinements for base classes.
   #
-  # Activate these by including the following in an appropriate lexical scope:
-  #   using ::Ragabash
-  # or with the pattern:
-  #   ::Ragabash::Refinements.activate! || using(::Ragabash::Refinements)
-  # for compatibility with versions of Ruby which don't support Refinements.
+  # Activate these by including the following in an appropriate
+  # lexical scope:
+  #   using ::Ragabash::Refinements
+  # Or activate these refinements via monkey-patching with:
+  #   ::Ragabash::Refinements.activate
+  # You may also use this pattern to monkey-patch only as a fall-back:
+  #   ::Ragabash::Refinements.compat || using(::Ragabash::Refinements)
 
   module Refinements
     # rubocop:disable Style/Alias
@@ -66,14 +68,14 @@ module Ragabash
 
     # This section permits us to fall-back to monkey-patching if we're not on
     # MRI 2.1+
-    unless RUBY_ENGINE == "ruby" && RUBY_VERSION >= "2.1"
-      @refinement_blocks = {}
-      class << self
-        private
 
-        def refine(klass, &refinement)
-          @refinement_blocks[klass] = refinement
-        end
+    @refinement_blocks = {}
+    class << self
+      private
+
+      def refine(klass, &refinement)
+        @refinement_blocks[klass] = refinement
+        super if RUBY_ENGINE == "ruby" && RUBY_VERSION >= "2.1"
       end
     end
 
@@ -295,25 +297,31 @@ module Ragabash
     end
 
     REFINEMENT_BLOCKS = IceNine.deep_freeze(@refinement_blocks) || {}
-    remove_instance_variable(:@refinement_blocks) if @refinement_blocks
+    remove_instance_variable(:@refinement_blocks)
     private_constant :REFINEMENT_BLOCKS
 
-    # Activate the refinements as a monkey-patch if refinements aren't
-    # supported. Will only monkey-patch once.
-    #
-    # This allows for the pattern of:
-    #   ::Ragabash::Refinements.activate! || using(::Ragabash::Refinements)
-    # Which should work on Ruby versions that do not support refinements.
+    # Activate the refinements as a monkey-patch.
+    # <b>Will only monkey-patch once.</b>
     #
     # @return [Boolean] +false+ if there is nothing to monkey-patch, or +true+
-    #                   if monkey-patching was successful now or before.
-    def self.activate!
+    #                   if monkey-patching was successful now or previously.
+    def self.activate
       return false if REFINEMENT_BLOCKS.empty?
       return true if @activated
       REFINEMENT_BLOCKS.each do |klass, refinement|
         klass.class_eval(&refinement)
       end
       @activated = true
+    end
+
+    # Activate the refinements as a monkey-patch only if refinements aren't
+    # supported.
+    #
+    # @return [Boolean] +false+ if refinements are supported, or the result of
+    #                   the {.activate} method.
+    def self.compat
+      return false if RUBY_ENGINE == "ruby" && RUBY_VERSION >= "2.1"
+      activate
     end
   end
 end
