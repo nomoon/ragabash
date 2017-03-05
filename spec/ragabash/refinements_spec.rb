@@ -2,11 +2,7 @@
 require "spec_helper"
 
 describe Ragabash::Refinements do # rubocop:disable BlockLength
-  if ::Ragabash::Refinements.compat
-    STDERR.puts "*** Refinements loaded through monkey-patching ***"
-  elsif using(::Ragabash::Refinements)
-    STDERR.puts "*** Refinements loaded through using() ***"
-  end
+  using ::Ragabash::Refinements
 
   let(:flt) { 1.15 }
   let(:big) { BigDecimal.new("1.5") }

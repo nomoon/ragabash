@@ -66,19 +66,6 @@ module Ragabash
     #   +::Symbol+, +::Numeric+, +::BigDecimal+, +::Array+, +::Hash+, +::Set+
     #   @return [Boolean] +true+ if +!blank?+, othewise +false+
 
-    # This section permits us to fall-back to monkey-patching if we're not on
-    # MRI 2.1+
-
-    @refinement_blocks = {}
-    class << self
-      private
-
-      def refine(klass, &refinement)
-        @refinement_blocks[klass] = refinement
-        super if RUBY_ENGINE == "ruby" && RUBY_VERSION >= "2.1"
-      end
-    end
-
     refine ::Object do
       def deep_freeze
         IceNine.deep_freeze(self)
@@ -294,34 +281,6 @@ module Ragabash
       def present?
         !empty?
       end
-    end
-
-    REFINEMENT_BLOCKS = IceNine.deep_freeze(@refinement_blocks) || {}
-    remove_instance_variable(:@refinement_blocks)
-    private_constant :REFINEMENT_BLOCKS
-
-    # Activate the refinements as a monkey-patch.
-    # <b>Will only monkey-patch once.</b>
-    #
-    # @return [Boolean] +false+ if there is nothing to monkey-patch, or +true+
-    #                   if monkey-patching was successful now or previously.
-    def self.activate
-      return false if REFINEMENT_BLOCKS.empty?
-      return true if @activated
-      REFINEMENT_BLOCKS.each do |klass, refinement|
-        klass.class_eval(&refinement)
-      end
-      @activated = true
-    end
-
-    # Activate the refinements as a monkey-patch only if refinements aren't
-    # supported.
-    #
-    # @return [Boolean] +false+ if refinements are supported, or the result of
-    #                   the {.activate} method.
-    def self.compat
-      return false if RUBY_ENGINE == "ruby" && RUBY_VERSION >= "2.1"
-      activate
     end
   end
 end

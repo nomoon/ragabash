@@ -1,6 +1,12 @@
 # frozen_string_literal: true
+require "simplecov"
 require "coveralls"
-Coveralls.wear!
+# Coveralls.wear!
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start
 
 RSpec::Matchers.define_negated_matcher :not_be, :be
 
