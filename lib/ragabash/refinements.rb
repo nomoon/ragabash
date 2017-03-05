@@ -313,7 +313,6 @@ module Ragabash
       return false if REFINEMENT_BLOCKS.empty?
       return true if @activated
       REFINEMENT_BLOCKS.each do |klass, refinement|
-        puts klass
         klass.class_eval(&refinement)
       end
       @activated = true
