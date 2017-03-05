@@ -101,6 +101,7 @@ describe Ragabash::Refinements do # rubocop:disable BlockLength
   end
 
   context "#blank?" do
+    it("Object returns false") { expect(Object.new.blank?).to equal(false) }
     it("NilClass returns true") { expect(nil.blank?).to equal(true) }
     it("FalseClass returns true") { expect(false.blank?).to equal(true) }
     it("TrueClass returns false") { expect(true.blank?).to equal(false) }
@@ -120,6 +121,7 @@ describe Ragabash::Refinements do # rubocop:disable BlockLength
   end
 
   context "#present?" do
+    it("Object returns true") { expect(Object.new.present?).to equal(true) }
     it("NilClass returns false") { expect(nil.present?).to equal(false) }
     it("FalseClass returns false") { expect(false.present?).to equal(false) }
     it("TrueClass returns true") { expect(true.present?).to equal(true) }

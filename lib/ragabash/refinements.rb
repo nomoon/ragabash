@@ -100,12 +100,10 @@ module Ragabash
       alias frozen_copy safe_copy
 
       def blank?
-        puts "blank fallback"
         respond_to?(:empty?) ? !!empty? : !self # rubocop:disable DoubleNegation
       end
 
       def present?
-        puts "present fallback"
         !blank?
       end
     end
