@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require "ice_nine"
-require "fast_blank"
 
 module Ragabash
   # A set of useful refinements for base classes.
@@ -219,9 +218,13 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      alias blank? blank_as?
+      unless defined?(JRUBY_VERSION)
+        require "fast_blank"
+        alias blank? blank_as?
+      end
+
       def present?
-        !blank_as?
+        !blank?
       end
     end
 

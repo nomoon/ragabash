@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "coveralls", "~> 0.8"
 
   spec.add_runtime_dependency "ice_nine", "~> 0.11"
-  spec.add_runtime_dependency "fast_blank", "~> 1.0"
+  spec.add_runtime_dependency "fast_blank", "~> 1.0" unless defined?(JRUBY_VERSION)
   spec.add_runtime_dependency "awesome_print", "~> 1.7"
   spec.add_runtime_dependency "rouge", "~> 2.0"
   spec.add_runtime_dependency "pry", "~> 0.10.4"
