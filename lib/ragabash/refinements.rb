@@ -87,9 +87,7 @@ module Ragabash
       end
 
       def try_dup
-        dup
-      rescue TypeError
-        self
+        respond_to?(:dup) ? dup : self
       end
       alias deep_dup try_dup
 
