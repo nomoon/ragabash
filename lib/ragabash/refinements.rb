@@ -66,7 +66,7 @@ module Ragabash
 
     # This section permits us to fall-back to monkey-patching if we're not on
     # MRI 2.1+
-    unless RUBY_ENGINE == "ruby" && RUBY_VERSION >= "2.5"
+    unless RUBY_ENGINE == "ruby" && RUBY_VERSION >= "2.1"
       @refinement_blocks = {}
       class << self
         private
@@ -292,7 +292,7 @@ module Ragabash
     end
 
     REFINEMENT_BLOCKS = IceNine.deep_freeze(@refinement_blocks) || {}
-    remove_instance_variable(:@refinement_blocks)
+    remove_instance_variable(:@refinement_blocks) if @refinement_blocks
     private_constant :REFINEMENT_BLOCKS
 
     # Activate the refinements as a monkey-patch if refinements aren't
