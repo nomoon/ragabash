@@ -1,17 +1,15 @@
 # frozen_string_literal: true
-require "codeclimate-test-reporter"
-SimpleCov.start do
-  add_filter "vendor"
-  add_filter "spec"
-  formatter SimpleCov::Formatter::MultiFormatter.new(
-    [
-      SimpleCov::Formatter::HTMLFormatter,
-      CodeClimate::TestReporter::Formatter,
-    ]
-  )
-end
+require "simplecov"
+require "coveralls"
 
-RSpec::Matchers.define_negated_matcher :not_equal, :equal
+formatters = [
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter,
+]
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(formatters)
+SimpleCov.start
+
+RSpec::Matchers.define_negated_matcher :not_be, :be
 
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "ragabash"
