@@ -79,7 +79,7 @@ module Ragabash
       # Activate the refinements as permanent monkey-patches.
       #
       # @return [Array<Class>] a list of all patched classes.
-      def self.monkey_patch!
+      def monkey_patch!
         return @rmods_activated.dup if @rmods.empty?
         MUTEX.synchronize do
           @rmods.delete_if do |mod|
