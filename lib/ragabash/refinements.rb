@@ -7,10 +7,13 @@ module Ragabash
   # Activate these by including the following in an appropriate
   # lexical scope:
   #   using ::Ragabash::Refinements
-  # Or activate these refinements via monkey-patching with:
-  #   ::Ragabash::Refinements.activate
-  # You may also use this pattern to monkey-patch only as a fall-back:
-  #   ::Ragabash::Refinements.compat || using(::Ragabash::Refinements)
+  # If your Ruby version does not support refinements, this will fall back to
+  # monkey-patching.
+  #
+  # You may also explicitly activate these refinements via monkey-patching with:
+  #   ::Ragabash::Refinements.monkey_patch! # or
+  #   ::Ragabash::Refinements.activate!
+  #
 
   module Refinements
     # rubocop:disable Style/Alias
@@ -66,7 +69,64 @@ module Ragabash
     #   +::Symbol+, +::Numeric+, +::BigDecimal+, +::Array+, +::Hash+, +::Set+
     #   @return [Boolean] +true+ if +!blank?+, othewise +false+
 
-    refine ::Object do
+    MUTEX = Mutex.new
+    private_constant :MUTEX
+
+    @rmods = []
+    @rmods_activated = []
+
+    class << self
+      # Activate the refinements as permanent monkey-patches.
+      #
+      # @return [Array<Class>] a list of all patched classes.
+      def self.monkey_patch!
+        return @rmods_activated.dup if @rmods.empty?
+        MUTEX.synchronize do
+          @rmods.delete_if do |mod|
+            if mod.is_a?(Array)
+              klass = mod[0]
+              klass.class_eval(&mod[1])
+              @rmods_activated << klass
+            elsif mod.is_a?(Module)
+              klass = mod.ancestors[1]
+              mod.public_instance_methods(false).each do |m_name|
+                umeth = mod.public_instance_method(m_name)
+                klass.send(:define_method, umeth.name, umeth)
+              end
+              @rmods_activated << klass
+            end
+          end
+        end
+        @rmods_activated.dup
+      end
+
+      alias activate! monkey_patch!
+    end
+
+    #
+    # Fake refinements for Rubies that need them.
+    #
+    unless ::Module.private_method_defined?(:using)
+      class << self
+        private
+
+        def refine(klass, &block)
+          @rmods << [klass, block]
+          self
+        end
+      end
+
+      class ::Module # rubocop:disable ClassAndModuleChildren
+        def using(klass)
+          if klass == ::Ragabash::Refinements
+            return ::Ragabash::Refinements.monkey_patch!
+          end
+          super
+        end
+      end
+    end
+
+    @rmods << refine(::Object) do
       def deep_freeze
         IceNine.deep_freeze(self)
       end
@@ -94,7 +154,7 @@ module Ragabash
       end
     end
 
-    refine ::NilClass do
+    @rmods << refine(::NilClass) do
       def try_dup
         self
       end
@@ -111,7 +171,7 @@ module Ragabash
       end
     end
 
-    refine ::FalseClass do
+    @rmods << refine(::FalseClass) do
       def try_dup
         self
       end
@@ -128,7 +188,7 @@ module Ragabash
       end
     end
 
-    refine ::TrueClass do
+    @rmods << refine(::TrueClass) do
       def try_dup
         self
       end
@@ -145,7 +205,7 @@ module Ragabash
       end
     end
 
-    refine ::Symbol do
+    @rmods << refine(::Symbol) do
       def try_dup
         self
       end
@@ -162,7 +222,7 @@ module Ragabash
       end
     end
 
-    refine ::Numeric do
+    @rmods << refine(::Numeric) do
       def try_dup
         self
       end
@@ -180,7 +240,7 @@ module Ragabash
     end
 
     require "bigdecimal"
-    refine ::BigDecimal do
+    @rmods << refine(::BigDecimal) do
       def dup
         dup = self.class.allocate
         initialize_copy(dup)
@@ -203,7 +263,7 @@ module Ragabash
       end
     end
 
-    refine ::String do
+    @rmods << refine(::String) do
       def safe_copy
         frozen? ? self : dup.freeze
       end
@@ -224,7 +284,7 @@ module Ragabash
       end
     end
 
-    refine ::Array do
+    @rmods << refine(::Array) do
       def deep_dup
         map { |value| value.deep_dup } # rubocop:disable Style/SymbolProc
       end
@@ -240,7 +300,7 @@ module Ragabash
       end
     end
 
-    refine ::Hash do
+    @rmods << refine(::Hash) do
       def deep_dup
         hash = dup
         each_pair do |key, value|
@@ -266,7 +326,7 @@ module Ragabash
     end
 
     require "set"
-    refine ::Set do
+    @rmods << refine(::Set) do
       def deep_dup
         set_a = to_a
         set_a.map! do |val|
