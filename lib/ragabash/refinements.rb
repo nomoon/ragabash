@@ -6,13 +6,13 @@ module Ragabash
   #
   # Activate these by including the following in an appropriate
   # lexical scope:
-  #   using ::Ragabash::Refinements
+  #   using Ragabash::Refinements
   # If your Ruby version does not support refinements, this will fall back to
   # monkey-patching.
   #
   # You may also explicitly activate these refinements via monkey-patching with:
-  #   ::Ragabash::Refinements.monkey_patch! # or
-  #   ::Ragabash::Refinements.activate!
+  #   Ragabash::Refinements.monkey_patch! # or
+  #   Ragabash::Refinements.activate!
   #
 
   module Refinements
@@ -116,7 +116,9 @@ module Ragabash
         end
       end
 
+      # @!visibility private
       class ::Module # rubocop:disable ClassAndModuleChildren
+        # @!visibility private
         def using(klass)
           if klass == ::Ragabash::Refinements
             return ::Ragabash::Refinements.monkey_patch!
@@ -125,6 +127,10 @@ module Ragabash
         end
       end
     end
+
+    ##
+    # The various refinements
+    ##
 
     @rmods << refine(::Object) do
       def deep_freeze
