@@ -16,7 +16,7 @@ module Ragabash
   #   Ragabash::Refinements.activate!
   #
 
-  module Refinements
+  module Refinements # rubocop:disable Metrics/ModuleLength
     # rubocop:disable Style/Alias
 
     # @!method deep_freeze
@@ -152,12 +152,16 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      def blank?
-        respond_to?(:empty?) ? !!empty? : !self # rubocop:disable DoubleNegation
+      unless respond_to?(:blank?)
+        def blank?
+          respond_to?(:empty?) ? !!empty? : !self # rubocop:disable DoubleNegation
+        end
       end
 
-      def present?
-        !blank?
+      unless respond_to?(:present?)
+        def present?
+          !blank?
+        end
       end
     end
 
@@ -169,12 +173,16 @@ module Ragabash
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
-      def blank?
-        true
+      unless respond_to?(:blank?)
+        def blank?
+          true
+        end
       end
 
-      def present?
-        false
+      unless respond_to?(:present?)
+        def present?
+          false
+        end
       end
     end
 
@@ -186,12 +194,16 @@ module Ragabash
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
-      def blank?
-        true
+      unless respond_to?(:blank?)
+        def blank?
+          true
+        end
       end
 
-      def present?
-        false
+      unless respond_to?(:present?)
+        def present?
+          false
+        end
       end
     end
 
@@ -203,12 +215,16 @@ module Ragabash
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
-      def blank?
-        false
+      unless respond_to?(:blank?)
+        def blank?
+          false
+        end
       end
 
-      def present?
-        true
+      unless respond_to?(:present?)
+        def present?
+          true
+        end
       end
     end
 
@@ -220,12 +236,16 @@ module Ragabash
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
-      def blank?
-        false
+      unless respond_to?(:blank?)
+        def blank?
+          false
+        end
       end
 
-      def present?
-        true
+      unless respond_to?(:present?)
+        def present?
+          true
+        end
       end
     end
 
@@ -237,12 +257,16 @@ module Ragabash
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
-      def blank?
-        false
+      unless respond_to?(:blank?)
+        def blank?
+          false
+        end
       end
 
-      def present?
-        true
+      unless respond_to?(:present?)
+        def present?
+          true
+        end
       end
     end
 
@@ -256,12 +280,16 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      def blank?
-        false
+      unless respond_to?(:blank?)
+        def blank?
+          false
+        end
       end
 
-      def present?
-        true
+      unless respond_to?(:present?)
+        def present?
+          true
+        end
       end
     end
 
@@ -271,17 +299,21 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      if defined?(JRUBY_VERSION)
-        BLANK_RE = /\A[[:space:]]*\z/
-        def blank?
-          empty? || BLANK_RE === self # rubocop:disable Style/CaseEquality
+      unless respond_to?(:blank?)
+        if defined?(JRUBY_VERSION)
+          BLANK_RE = /\A[[:space:]]*\z/
+          def blank?
+            empty? || BLANK_RE === self # rubocop:disable Style/CaseEquality
+          end
+        else
+          alias blank? blank_as?
         end
-      else
-        alias blank? blank_as?
       end
 
-      def present?
-        !blank?
+      unless respond_to?(:present?)
+        def present?
+          !blank?
+        end
       end
     end
 
@@ -297,9 +329,12 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      alias blank? empty?
-      def present?
-        !empty?
+      alias blank? empty? unless respond_to?(:blank?)
+
+      unless respond_to?(:present?)
+        def present?
+          !empty?
+        end
       end
     end
 
@@ -324,9 +359,12 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      alias blank? empty?
-      def present?
-        !empty?
+      alias blank? empty? unless respond_to?(:blank?)
+
+      unless respond_to?(:present?)
+        def present?
+          !empty?
+        end
       end
     end
 
@@ -346,9 +384,12 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      alias blank? empty?
-      def present?
-        !empty?
+      alias blank? empty? unless respond_to?(:blank?)
+
+      unless respond_to?(:present?)
+        def present?
+          !empty?
+        end
       end
     end
   end
