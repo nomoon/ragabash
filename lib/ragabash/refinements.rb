@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require "ice_nine"
+require "fast_blank" unless defined?(JRUBY_VERSION)
 
 module Ragabash
   # A set of useful refinements for base classes.
@@ -15,7 +16,7 @@ module Ragabash
   #   Ragabash::Refinements.activate!
   #
 
-  module Refinements
+  module Refinements # rubocop:disable Metrics/ModuleLength
     # rubocop:disable Style/Alias
 
     # @!method deep_freeze
@@ -144,19 +145,23 @@ module Ragabash
       def try_dup
         respond_to?(:dup) ? dup : self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
 
       def safe_copy
         IceNine.deep_freeze(try_dup)
       end
       alias frozen_copy safe_copy
 
-      def blank?
-        respond_to?(:empty?) ? !!empty? : !self # rubocop:disable DoubleNegation
+      unless respond_to?(:blank?)
+        def blank?
+          respond_to?(:empty?) ? !!empty? : !self # rubocop:disable DoubleNegation
+        end
       end
 
-      def present?
-        !blank?
+      unless respond_to?(:present?)
+        def present?
+          !blank?
+        end
       end
     end
 
@@ -164,16 +169,20 @@ module Ragabash
       def try_dup
         self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
-      def blank?
-        true
+      unless respond_to?(:blank?)
+        def blank?
+          true
+        end
       end
 
-      def present?
-        false
+      unless respond_to?(:present?)
+        def present?
+          false
+        end
       end
     end
 
@@ -181,16 +190,20 @@ module Ragabash
       def try_dup
         self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
-      def blank?
-        true
+      unless respond_to?(:blank?)
+        def blank?
+          true
+        end
       end
 
-      def present?
-        false
+      unless respond_to?(:present?)
+        def present?
+          false
+        end
       end
     end
 
@@ -198,16 +211,20 @@ module Ragabash
       def try_dup
         self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
-      def blank?
-        false
+      unless respond_to?(:blank?)
+        def blank?
+          false
+        end
       end
 
-      def present?
-        true
+      unless respond_to?(:present?)
+        def present?
+          true
+        end
       end
     end
 
@@ -215,16 +232,20 @@ module Ragabash
       def try_dup
         self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
-      def blank?
-        false
+      unless respond_to?(:blank?)
+        def blank?
+          false
+        end
       end
 
-      def present?
-        true
+      unless respond_to?(:present?)
+        def present?
+          true
+        end
       end
     end
 
@@ -232,40 +253,43 @@ module Ragabash
       def try_dup
         self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
-      def blank?
-        false
+      unless respond_to?(:blank?)
+        def blank?
+          false
+        end
       end
 
-      def present?
-        true
+      unless respond_to?(:present?)
+        def present?
+          true
+        end
       end
     end
 
     require "bigdecimal"
     @rmods << refine(::BigDecimal) do
-      def dup
-        dup = self.class.allocate
-        initialize_copy(dup)
-        dup
-      end
       alias try_dup dup
-      alias deep_dup dup
+      alias deep_dup dup unless respond_to?(:deep_dup)
 
       def safe_copy
         frozen? ? self : dup.freeze
       end
       alias frozen_copy safe_copy
 
-      def blank?
-        false
+      unless respond_to?(:blank?)
+        def blank?
+          false
+        end
       end
 
-      def present?
-        true
+      unless respond_to?(:present?)
+        def present?
+          true
+        end
       end
     end
 
@@ -275,24 +299,29 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      if defined?(JRUBY_VERSION)
-        BLANK_RE = /\A[[:space:]]*\z/
-        def blank?
-          empty? || BLANK_RE === self # rubocop:disable Style/CaseEquality
+      unless respond_to?(:blank?)
+        if defined?(JRUBY_VERSION)
+          BLANK_RE = /\A[[:space:]]*\z/
+          def blank?
+            empty? || BLANK_RE === self # rubocop:disable Style/CaseEquality
+          end
+        else
+          alias blank? blank_as?
         end
-      else
-        require "fast_blank"
-        alias blank? blank_as?
       end
 
-      def present?
-        !blank?
+      unless respond_to?(:present?)
+        def present?
+          !blank?
+        end
       end
     end
 
     @rmods << refine(::Array) do
-      def deep_dup
-        map { |value| value.deep_dup } # rubocop:disable Style/SymbolProc
+      unless respond_to?(:deep_dup)
+        def deep_dup
+          map { |value| value.deep_dup } # rubocop:disable Style/SymbolProc
+        end
       end
 
       def safe_copy
@@ -300,24 +329,29 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      alias blank? empty?
-      def present?
-        !empty?
+      alias blank? empty? unless respond_to?(:blank?)
+
+      unless respond_to?(:present?)
+        def present?
+          !empty?
+        end
       end
     end
 
     @rmods << refine(::Hash) do
-      def deep_dup
-        hash = dup
-        each_pair do |key, value|
-          if ::String === key # rubocop:disable Style/CaseEquality
-            hash[key] = value.deep_dup
-          else
-            hash.delete(key)
-            hash[key.deep_dup] = value.deep_dup
+      unless respond_to?(:deep_dup)
+        def deep_dup
+          hash = dup
+          each_pair do |key, value|
+            if key.frozen? && ::String === key # rubocop:disable CaseEquality
+              hash[key] = value.deep_dup
+            else
+              hash.delete(key)
+              hash[key.deep_dup] = value.deep_dup
+            end
           end
+          hash
         end
-        hash
       end
 
       def safe_copy
@@ -325,9 +359,12 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      alias blank? empty?
-      def present?
-        !empty?
+      alias blank? empty? unless respond_to?(:blank?)
+
+      unless respond_to?(:present?)
+        def present?
+          !empty?
+        end
       end
     end
 
@@ -347,9 +384,12 @@ module Ragabash
       end
       alias frozen_copy safe_copy
 
-      alias blank? empty?
-      def present?
-        !empty?
+      alias blank? empty? unless respond_to?(:blank?)
+
+      unless respond_to?(:present?)
+        def present?
+          !empty?
+        end
       end
     end
   end
