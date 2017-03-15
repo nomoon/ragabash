@@ -144,7 +144,7 @@ module Ragabash
       def try_dup
         respond_to?(:dup) ? dup : self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
 
       def safe_copy
         IceNine.deep_freeze(try_dup)
@@ -164,7 +164,7 @@ module Ragabash
       def try_dup
         self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
@@ -181,7 +181,7 @@ module Ragabash
       def try_dup
         self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
@@ -198,7 +198,7 @@ module Ragabash
       def try_dup
         self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
@@ -215,7 +215,7 @@ module Ragabash
       def try_dup
         self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
@@ -232,7 +232,7 @@ module Ragabash
       def try_dup
         self
       end
-      alias deep_dup try_dup
+      alias deep_dup try_dup unless respond_to?(:deep_dup)
       alias safe_copy try_dup
       alias frozen_copy try_dup
 
@@ -247,13 +247,8 @@ module Ragabash
 
     require "bigdecimal"
     @rmods << refine(::BigDecimal) do
-      def dup
-        dup = self.class.allocate
-        initialize_copy(dup)
-        dup
-      end
       alias try_dup dup
-      alias deep_dup dup
+      alias deep_dup dup unless respond_to?(:deep_dup)
 
       def safe_copy
         frozen? ? self : dup.freeze
@@ -291,8 +286,10 @@ module Ragabash
     end
 
     @rmods << refine(::Array) do
-      def deep_dup
-        map { |value| value.deep_dup } # rubocop:disable Style/SymbolProc
+      unless respond_to?(:deep_dup)
+        def deep_dup
+          map { |value| value.deep_dup } # rubocop:disable Style/SymbolProc
+        end
       end
 
       def safe_copy
@@ -307,17 +304,19 @@ module Ragabash
     end
 
     @rmods << refine(::Hash) do
-      def deep_dup
-        hash = dup
-        each_pair do |key, value|
-          if ::String === key # rubocop:disable Style/CaseEquality
-            hash[key] = value.deep_dup
-          else
-            hash.delete(key)
-            hash[key.deep_dup] = value.deep_dup
+      unless respond_to?(:deep_dup)
+        def deep_dup
+          hash = dup
+          each_pair do |key, value|
+            if key.frozen? && ::String === key # rubocop:disable CaseEquality
+              hash[key] = value.deep_dup
+            else
+              hash.delete(key)
+              hash[key.deep_dup] = value.deep_dup
+            end
           end
+          hash
         end
-        hash
       end
 
       def safe_copy
