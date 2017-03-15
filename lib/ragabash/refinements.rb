@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require "ice_nine"
+require "fast_blank" unless defined?(JRUBY_VERSION)
 
 module Ragabash
   # A set of useful refinements for base classes.
@@ -276,7 +277,6 @@ module Ragabash
           empty? || BLANK_RE === self # rubocop:disable Style/CaseEquality
         end
       else
-        require "fast_blank"
         alias blank? blank_as?
       end
 
